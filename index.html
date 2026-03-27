@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matrix Overdrive | Expanded Edition</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --neon: #00ff41;
+            --neon-glow: 0 0 20px rgba(0, 255, 65, 0.6);
+            --cyber-blue: #00d2ff;
+            --bg-dark: #000500;
+            --card-bg: rgba(0, 10, 0, 0.9);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0; padding: 0;
+            background-color: var(--bg-dark);
+            color: #fff;
+            font-family: 'Segoe UI', sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            display: flex; justify-content: center; align-items: center;
+        }
+
+        #matrix-bg {
+            position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: -1;
+            opacity: 0.25;
+        }
+
+        .app-window {
+            width: 98vw; height: 96vh;
+            background: var(--card-bg);
+            border: 2px solid rgba(0, 255, 65, 0.2);
+            border-radius: 20px;
+            backdrop-filter: blur(15px);
+            display: grid;
+            grid-template-rows: 90px 1fr;
+            position: relative;
+        }
+
+        .header {
+            display: flex; justify-content: space-around; align-items: center;
+            border-bottom: 1px solid rgba(0, 255, 65, 0.1);
+            background: rgba(0,0,0,0.4);
+        }
+
+        .stat-group { text-align: center; }
+        .stat-group .label { font-size: 0.65rem; color: var(--cyber-blue); letter-spacing: 2px; text-transform: uppercase; }
+        .stat-group .value { font-size: 1.8rem; font-weight: 900; color: var(--neon); text-shadow: var(--neon-glow); }
+
+        .content {
+            display: grid; grid-template-columns: 380px 1fr 380px;
+            gap: 15px; padding: 15px; overflow: hidden;
+        }
+
+        .side-panel {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 15px;
+            padding: 15px;
+            display: flex; flex-direction: column;
+            border: 1px solid rgba(0, 255, 65, 0.05);
+            overflow: hidden;
+        }
+
+        .list-wrap { 
+            overflow-y: auto; 
+            flex-grow: 1; 
+            padding-left: 10px;
+            scrollbar-width: thin;
+            scrollbar-color: var(--neon) transparent;
+        }
+
+        .item-row {
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(0, 255, 65, 0.15);
+            border-radius: 12px;
+            padding: 10px; margin-bottom: 8px;
+            display: flex; align-items: center;
+            transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .item-row:hover {
+            border-color: var(--neon);
+            background: rgba(0, 255, 65, 0.1);
+            transform: scale(1.02);
+        }
+
+        .item-icon {
+            width: 45px; height: 45px;
+            background: rgba(0, 255, 65, 0.1);
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--neon); font-size: 1.3rem;
+            flex-shrink: 0;
+        }
+
+        .item-details { flex-grow: 1; padding: 0 12px; }
+        .item-name { font-weight: bold; font-size: 0.85rem; color: #fff; display: block; }
+        .item-cost { font-size: 0.8rem; color: var(--cyber-blue); font-weight: bold; }
+
+        .btn-buy {
+            background: var(--neon);
+            border: none; border-radius: 6px;
+            padding: 8px 14px; font-weight: bold; cursor: pointer;
+            color: #000; font-size: 0.75rem;
+            transition: 0.2s;
+        }
+
+        .btn-buy:disabled { background: #1a1a1a; color: #444; cursor: not-allowed; opacity: 0.6; }
+        .btn-buy:not(:disabled):hover { background: #fff; box-shadow: 0 0 15px var(--neon); }
+
+        .nexus-core {
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            background: radial-gradient(circle, rgba(0,255,65,0.05) 0%, transparent 70%);
+        }
+
+        .tap-target {
+            width: 250px; height: 250px;
+            border-radius: 50%;
+            border: 5px solid var(--neon);
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: var(--neon-glow), inset 0 0 30px rgba(0,255,65,0.2);
+            transition: 0.1s;
+            position: relative;
+        }
+
+        .tap-target:active { transform: scale(0.94) rotate(5deg); }
+        .tap-target i { font-size: 6rem; color: var(--neon); filter: drop-shadow(0 0 10px var(--neon)); }
+
+        .sell-nexus {
+            margin-top: 40px; width: 85%;
+            background: linear-gradient(45deg, var(--neon), var(--cyber-blue));
+            padding: 20px; border: none; border-radius: 50px;
+            color: #000; font-weight: 900; font-size: 1.3rem;
+            cursor: pointer; letter-spacing: 2px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+        }
+
+        .click-anim {
+            position: absolute; color: #fff; font-weight: 900;
+            pointer-events: none; animation: floatUp 0.7s ease-out forwards;
+            font-size: 1.8rem; text-shadow: 0 0 10px var(--neon); z-index: 100;
+        }
+
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-150px) scale(1.5); }
+        }
+
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: var(--neon); border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+<canvas id="matrix-bg"></canvas>
+
+<div class="app-window">
+    <header class="header">
+        <div class="stat-group">
+            <div class="label">Balance / الرصيد</div>
+            <div class="value" id="money">0$</div>
+        </div>
+        <div class="stat-group">
+            <div class="label">Raw Code / الأكواد</div>
+            <div class="value" id="code">0</div>
+        </div>
+        <div class="stat-group">
+            <div class="label">Mining Rate</div>
+            <div class="value" id="cps" style="color: var(--cyber-blue); font-size: 1.4rem">0.0/S</div>
+        </div>
+    </header>
+
+    <main class="content">
+        <div class="side-panel">
+            <h3 style="color: var(--cyber-blue); text-align: center; margin-bottom: 15px;"><i class="fas fa-microchip"></i> HARDWARE UPGRADES</h3>
+            <div class="list-wrap" id="hardware-list"></div>
+        </div>
+
+        <div class="nexus-core">
+            <div class="tap-target" onclick="processClick(event)">
+                <i class="fas fa-terminal"></i>
+            </div>
+            <div style="text-align: center; margin-top: 15px;">
+                <span style="color: #aaa; font-size: 0.8rem;">Click Power: <b id="cpc-val" style="color: var(--neon)">1</b></span>
+            </div>
+            <button class="sell-nexus" onclick="decryptAndSell()">
+                <i class="fas fa-coins"></i> DECRYPT & SELL
+            </button>
+        </div>
+
+        <div class="side-panel">
+            <h3 style="color: var(--neon); text-align: center; margin-bottom: 15px;"><i class="fas fa-user-secret"></i> ELITE HACKERS</h3>
+            <div class="list-wrap" id="team-list"></div>
+        </div>
+    </main>
+</div>
+
+<script>
+    let state = { money: 0, code: 0, cpc: 1, cps: 0 };
+
+    // قائمة هاردوير ضخمة
+    const hardware = [
+        { id: 'h1', name: 'Mechanical Keyb', cost: 15, boost: 1, icon: 'keyboard' },
+        { id: 'h2', name: 'Gaming Mouse', cost: 100, boost: 5, icon: 'mouse' },
+        { id: 'h3', name: 'RTX 4090 GPU', cost: 800, boost: 35, icon: 'microchip' },
+        { id: 'h4', name: 'Liquid Cooling', cost: 3500, boost: 120, icon: 'tint' },
+        { id: 'h5', name: 'Quantum CPU', cost: 15000, boost: 600, icon: 'atom' },
+        { id: 'h6', name: 'Neural Link VR', cost: 100000, boost: 4500, icon: 'vr-cardboard' }
+    ];
+
+    // قائمة فريق هكرز ضخمة
+    const team = [
+        { id: 's1', name: 'Script Kiddie', cost: 50, cps: 1, icon: 'user' },
+        { id: 's2', name: 'Python Scraper', cost: 400, cps: 8, icon: 'terminal' },
+        { id: 's3', name: 'Fullstack Dev', cost: 2500, cps: 45, icon: 'code-branch' },
+        { id: 's4', name: 'Security Expert', cost: 12000, cps: 250, icon: 'user-shield' },
+        { id: 's5', name: 'AI Ghost', cost: 80000, cps: 1800, icon: 'ghost' },
+        { id: 's6', name: 'The Architect', cost: 500000, cps: 12000, icon: 'city' }
+    ];
+
+    function processClick(e) {
+        state.code += state.cpc;
+        const d = document.createElement('div');
+        d.className = 'click-anim';
+        d.style.left = e.clientX + 'px'; d.style.top = e.clientY + 'px';
+        d.innerText = `+${state.cpc}`;
+        document.body.appendChild(d);
+        setTimeout(() => d.remove(), 700);
+        updateStats();
+    }
+
+    function decryptAndSell() {
+        if(state.code > 0) {
+            state.money += state.code * 0.7; // عمولة تحويل 30%
+            state.code = 0;
+            updateStats();
+        }
+    }
+
+    function purchase(id, cat) {
+        const item = (cat === 'h' ? hardware : team).find(i => i.id === id);
+        if(state.money >= item.cost) {
+            state.money -= item.cost;
+            item.owned = (item.owned || 0) + 1;
+            if(cat === 'h') state.cpc += item.boost;
+            else state.cps += item.cps;
+            item.cost = Math.floor(item.cost * 1.35); // زيادة السعر
+            updateStats();
+        }
+    }
+
+    function updateStats() {
+        document.getElementById('money').innerText = Math.floor(state.money) + "$";
+        document.getElementById('code').innerText = Math.floor(state.code);
+        document.getElementById('cps').innerText = state.cps.toFixed(1) + "/S";
+        document.getElementById('cpc-val').innerText = state.cpc;
+        renderShop();
+    }
+
+    function renderShop() {
+        [...hardware, ...team].forEach(item => {
+            let cat = hardware.includes(item) ? 'h' : 's';
+            let listId = cat === 'h' ? 'hardware-list' : 'team-list';
+            let row = document.getElementById(item.id);
+
+            if (!row) {
+                const list = document.getElementById(listId);
+                const html = `
+                    <div class="item-row" id="${item.id}">
+                        <div class="item-icon"><i class="fas fa-${item.icon}"></i></div>
+                        <div class="item-details">
+                            <span class="item-name">${item.name} [<span class="count">0</span>]</span>
+                            <span class="item-cost">$${item.cost}</span>
+                        </div>
+                        <button class="btn-buy" onclick="purchase('${item.id}', '${cat}')">BUY</button>
+                    </div>`;
+                list.insertAdjacentHTML('beforeend', html);
+                row = document.getElementById(item.id);
+            }
+
+            row.querySelector('.count').innerText = item.owned || 0;
+            row.querySelector('.item-cost').innerText = "$" + item.cost.toLocaleString();
+            row.querySelector('.btn-buy').disabled = state.money < item.cost;
+        });
+    }
+
+    // Matrix Background
+    const canvas = document.getElementById('matrix-bg');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+    const drops = Array(Math.floor(canvas.width/18)).fill(1);
+    function draw() {
+        ctx.fillStyle = "rgba(0,0,0,0.05)"; ctx.fillRect(0,0,canvas.width,canvas.height);
+        ctx.fillStyle = "#0F0"; ctx.font = "18px monospace";
+        drops.forEach((y, i) => {
+            const char = "01"[Math.floor(Math.random()*2)];
+            ctx.fillText(char, i*18, y*18);
+            if(y*18 > canvas.height && Math.random() > 0.975) drops[i] = 0;
+            drops[i]++;
+        });
+    }
+    setInterval(draw, 40);
+
+    // Game Loop
+    setInterval(() => {
+        if(state.cps > 0) {
+            state.code += state.cps / 10;
+            updateStats();
+        }
+    }, 100);
+
+    updateStats();
+</script>
+</body>
+</html>

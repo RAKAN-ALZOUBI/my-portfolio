@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Rakan Alzoubi | Game Programmer Portfolio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #0b0f1a;
+            --card-bg: #131826;
+            --accent-color: #3b82f6;
+            --accent-glow: rgba(59, 130, 246, 0.25);
+            --text-main: #ffffff;
+            --text-dim: #cbd5e1;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.7;
+            font-size: 18px;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        header {
+            padding: 2rem 10%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(11, 15, 26, 0.95);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .logo h1 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #fff, var(--accent-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo p {
+            color: var(--text-dim);
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin-top: -5px;
+        }
+
+        .header-links {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .header-links a {
+            color: var(--accent-color);
+            background: rgba(59, 130, 246, 0.1);
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .header-links a:hover {
+            background: var(--accent-color);
+            color: #fff;
+            transform: translateY(-3px);
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        .resume-btn {
+            background: transparent !important;
+            border: 2px solid var(--accent-color);
+            color: var(--accent-color) !important;
+            padding: 0 24px !important;
+            border-radius: 8px !important;
+            font-size: 1.1rem !important;
+            font-weight: 600;
+            width: auto !important;
+            gap: 10px;
+        }
+
+        .resume-btn:hover {
+            background: var(--accent-color) !important;
+            color: #fff !important;
+        }
+
+        .hero {
+            padding: 6rem 10%;
+            display: flex;
+            gap: 50px;
+            align-items: center;
+            background: radial-gradient(circle at 10% 50%, rgba(59, 130, 246, 0.08) 0%, transparent 50%);
+        }
+
+        .profile-pic {
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--card-bg);
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+        }
+
+        .hero-text h2 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: var(--accent-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .hero-text p {
+            font-size: 1.2rem;
+            color: var(--text-dim);
+            max-width: 800px;
+            line-height: 1.8;
+        }
+
+        .projects-section {
+            padding: 5rem 10%;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border-bottom: 4px solid var(--accent-color);
+            padding-bottom: 10px;
+            width: fit-content;
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 40px;
+        }
+
+        .project-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .project-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--accent-color);
+            box-shadow: 0 20px 40px var(--accent-glow);
+        }
+
+        .video-container {
+            width: 100%;
+            height: 280px;
+            background: #000;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .loop-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.4s;
+        }
+
+        .project-card:hover .loop-video {
+            transform: scale(1.03);
+        }
+
+        .project-info {
+            padding: 30px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .project-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .project-title {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+
+        .project-badge {
+            background: rgba(59, 130, 246, 0.15);
+            color: var(--accent-color);
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .project-desc {
+            color: var(--text-dim);
+            font-size: 1.05rem;
+            margin-bottom: 25px;
+            line-height: 1.6;
+            flex-grow: 1;
+        }
+
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tag {
+            background: rgba(255, 255, 255, 0.05);
+            color: #90abfc;
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .btn-demo {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: transparent;
+            border: 1px solid var(--accent-color);
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-main);
+            cursor: pointer;
+            transition: 0.3s;
+            text-decoration: none;
+            width: fit-content;
+        }
+
+        .btn-demo:hover {
+            background: var(--accent-color);
+            color: white;
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        .educations-skills {
+            padding: 0 10% 6rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+        }
+
+        .box {
+            background: var(--card-bg);
+            padding: 35px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .box h3 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--text-main);
+        }
+
+        .box h3 i { color: var(--accent-color); }
+
+        .edu-detail strong { font-size: 1.2rem; display: block; margin-bottom: 5px; }
+        .gpa {
+            display: inline-block;
+            background: rgba(59, 130, 246, 0.2);
+            color: #fff;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .skill-category p {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 20px 0 10px;
+            color: var(--accent-color);
+        }
+
+        .about-me-container {
+            padding: 2rem 10% 4rem;
+        }
+
+        .about-box {
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 16px;
+            border-left: 5px solid var(--accent-color);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .about-box h2 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .about-box h2 i {
+            color: var(--accent-color);
+        }
+
+        .about-box p {
+            font-size: 1.15rem;
+            color: var(--text-dim);
+            margin-bottom: 20px;
+            line-height: 1.8;
+        }
+
+        .about-box .highlight {
+            color: var(--accent-color);
+            font-weight: 700;
+        }
+
+        .extra-highlights {
+            background: rgba(59, 130, 246, 0.05);
+            border-radius: 16px;
+            padding: 30px;
+            margin: 0 10% 4rem;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            gap: 20px;
+        }
+
+        .highlight-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 1.1rem;
+        }
+
+        .highlight-item i {
+            color: var(--accent-color);
+            font-size: 1.5rem;
+        }
+
+        footer {
+            text-align: center;
+            padding: 3rem 10%;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            color: var(--text-dim);
+            background: #06080d;
+        }
+
+        footer i { color: var(--accent-color); margin-right: 5px; }
+
+        @media (max-width: 1024px) {
+            header, .hero, .projects-section, .educations-skills, footer { padding-left: 5%; padding-right: 5%; }
+            .hero { flex-direction: column; text-align: center; }
+            .projects-grid { grid-template-columns: 1fr; }
+            .educations-skills { grid-template-columns: 1fr; }
+            .extra-highlights { flex-direction: column; align-items: flex-start; margin: 0 5% 4rem; }
+            .about-me-container { padding: 2rem 5% 4rem; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo">
+        <h1>Rakan Alzoubi</h1>
+        <p>Game Programmer Intern</p>
+    </div>
+    <div class="header-links">
+        <a href="mailto:Rakanemadpc@gmail.com" title="Email"><i class="fas fa-envelope"></i></a>
+        <a href="#" onclick="alert('Phone: 0797100931'); return false;" title="Phone"><i class="fas fa-phone-alt"></i></a>
+        <a href="https://github.com/RAKAN-ALZOUBI" title="GitHub"><i class="fab fa-github"></i></a>
+        <a href="https://www.linkedin.com/in/rakan-alzoubi-209b323a2/" title="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+        <a href="https://flowcv.com/resume/esas2c4w9o0s" class="resume-btn"><i class="fas fa-file-pdf"></i> Resume</a>
+    </div>
+</header>
+
+<section class="hero">
+    <img src="1767562505888.jpg" alt="Rakan Alzoubi" class="profile-pic">
+    <div class="hero-text">
+        <h2><i class="fas fa-user-astronaut"></i> Profile Summary</h2>
+        <p>Computer Science student and C++ Game Programmer. Passionate about <strong>Unreal Engine 5</strong>, with a strong foundation in object-oriented programming and algorithmic problem-solving. Seeking to apply clean code practices to create engaging gameplay experiences. Experienced in game math, collision systems, Behavior Trees, and real-time performance optimization.</p>
+    </div>
+</section>
+
+<section class="projects-section">
+    <h2 class="section-title"><i class="fas fa-gamepad"></i> Projects</h2>
+    <div class="projects-grid">
+        <!-- Project 1 -->
+        <div class="project-card">
+            <div class="video-container">
+                <video class="loop-video" autoplay muted loop playsinline>
+                    <source src="Video Project.mp4" type="video/mp4">
+                </video>
+            </div>
+            <div class="project-info">
+                <div class="project-header">
+                    <div class="project-title">Neon Survivor</div>
+                    <span class="project-badge">2D Arcade</span>
+                </div>
+                <div class="tags">
+                    <span class="tag">JavaScript</span><span class="tag">Canvas API</span><span class="tag">Game Loop</span>
+                </div>
+                <p class="project-desc">Fast-paced web-based 2D space shooter with a Retro-Neon aesthetic. Built with real-time performance optimization, clean code structure, and scalable game logic. Features enemy waves, power-ups, and smooth collision detection.</p>
+                <a href="https://rakan-alzoubi.github.io/Neon-Survivor-Game/" class="btn-demo">
+                    <i class="fas fa-play-circle"></i> Play 
+                </a>
+            </div>
+        </div>
+
+        <!-- Project 2 -->
+        <div class="project-card">
+            <div class="video-container">
+                <video class="loop-video" autoplay muted loop playsinline>
+                    <source src="Video Project 1.mp4" type="video/mp4">
+                </video>
+            </div>
+            <div class="project-info">
+                <div class="project-header">
+                    <div class="project-title">Matrix Overdrive</div>
+                    <span class="project-badge">Idle Game</span>
+                </div>
+                <div class="tags">
+                    <span class="tag">JavaScript</span><span class="tag">State Management</span><span class="tag">Algorithms</span>
+                </div>
+                <p class="project-desc">High-performance web-based idle game featuring a dynamic Cyberpunk UI. Developed with real-time state management, exponential scaling algorithms for game economy, and custom Canvas API animations.</p>
+                <a href="https://rakan-alzoubi.github.io/Matrix-Overdrive-Game/" class="btn-demo" >
+                 <i class="fas fa-play-circle"></i> Play 
+                </a>
+            </div>
+        </div>
+
+       
+
+</section>
+
+<div class="educations-skills">
+    <div class="box">
+        <h3><i class="fas fa-graduation-cap"></i> Education</h3>
+        <div class="edu-detail">
+            <strong>Bachelor of Science in Computer Science</strong>
+            <span style="color: var(--text-dim);">University of Jordan (JU)</span><br>
+            <span class="gpa">GPA: 3.06 (Very Good)</span>
+        </div>
+        <p style="color: var(--text-dim); margin-top: 15px;"><strong>Relevant Coursework:</strong> Data Structures & Algorithms, Object-Oriented Programming, Computer Networks. Developed practical technical projects utilizing C++ and Web technologies.</p>
+    </div>
+
+    <div class="box">
+        <h3><i class="fas fa-code"></i> Technical Skills</h3>
+        <div class="tags">
+            <span class="tag">C++</span><span class="tag">Unreal Engine 5</span><span class="tag">Blueprints</span><span class="tag">C#</span>
+            <span class="tag">HTML/CSS</span><span class="tag">JavaScript</span><span class="tag">PHP</span>
+        </div>
+        <div class="skill-category">
+            <p>🎮 Game Development</p>
+            <div class="tags">
+                <span class="tag">Behavior Trees</span><span class="tag">NavMesh</span><span class="tag">Animation Montages</span>
+                <span class="tag">Collision & Physics</span><span class="tag">Game Math</span>
+            </div>
+        </div>
+        <div class="skill-category">
+            <p>🛠️ Tools & Version Control</p>
+            <div class="tags">
+                <span class="tag">Visual Studio</span><span class="tag">Perforce</span><span class="tag">Git / GitHub</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="extra-highlights">
+    <div class="highlight-item"><i class="fas fa-code-branch"></i> <strong>Version Control:</strong> Git & GitHub proficiency</div>
+    <div class="highlight-item"><i class="fas fa-brain"></i> <strong>Problem Solving:</strong> Data Structures & Algorithms</div>
+    <div class="highlight-item"><i class="fab fa-unity"></i> <strong>Unreal Engine 5:</strong> Blueprints & C++ integration</div>
+    <div class="highlight-item"><i class="fas fa-robot"></i> <strong>Game AI:</strong> Behavior Trees, EQS</div>
+</div>
+
+<section class="about-me-container">
+    <div class="about-box">
+        <h2><i class="fas fa-address-card"></i> About Me</h2>
+        <p>Hi, I'm <span class="highlight">Rakan</span>. I am an aspiring <span class="highlight">game developer</span> who began my journey in March 2026. Currently, I am focusing on building my foundational skills and exploring the world of interactive design.</p>
+        <p>I describe myself as a <span class="highlight">problem solver</span> that seeks opportunities to <span class="highlight">learn</span> new things, while constantly improving my technical skills. I enjoy creating experiences that feel great to play, with clean code that is easy to read.</p>
+        <p>Want to know more? You can find my contact information in my resume at the top.</p>
+    </div>
+</section>
+
+<script>
+    (function() {
+        const videos = document.querySelectorAll('video.loop-video');
+        videos.forEach(video => {
+            video.setAttribute('loop', 'true');
+            video.setAttribute('autoplay', 'true');
+            video.setAttribute('muted', 'true');
+            video.setAttribute('playsinline', 'true');
+            video.addEventListener('ended', function() {
+                this.currentTime = 0;
+                this.play().catch(e => console.log("loop replay blocked, but continues"));
+            });
+            video.addEventListener('canplaythrough', () => {
+                video.play().catch(e => console.log("autoplay prevented, user may interact"));
+            });
+        });
+    })();
+</script>
+
+</body>
+</html>

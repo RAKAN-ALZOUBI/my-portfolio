@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <title>RAKAN | NEON SURVIVOR PRO</title>
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser-arcade-physics.min.js"></script>
+    <style>
+        :root { --neon: #00f2ff; --magenta: #ff00ff; }
+        body { 
+            margin: 0; background: #0a0a0c; 
+            display: flex; justify-content: center; align-items: center; 
+            height: 100vh; color: white; font-family: 'Segoe UI', sans-serif; overflow: hidden;
+        }
+        
+        #master-container {
+            display: flex; gap: 20px; padding: 20px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 20px; border: 1px solid rgba(0, 242, 255, 0.3);
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+            max-width: 1100px; position: relative;
+        }
+
+        #game-container {
+            width: 800px; height: 600px;
+            border: 3px solid var(--neon);
+            border-radius: 12px; overflow: hidden;
+            background: #000;
+        }
+
+        #side-panel {
+            width: 250px; display: flex; flex-direction: column; gap: 15px;
+        }
+
+        .card {
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+            padding: 15px; border-radius: 12px;
+        }
+
+        h2 { margin: 0 0 10px 0; font-size: 1em; color: var(--neon); text-align: center; letter-spacing: 1px; }
+
+        .stat-item { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 0.9em; }
+        .val { color: var(--neon); font-weight: bold; }
+
+        .enemy-box { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 0.85em; }
+        .dot { width: 12px; height: 12px; border-radius: 50%; box-shadow: 0 0 10px currentColor; }
+
+        #upgrade-overlay {
+            position: absolute; top: 20px; left: 20px; width: 800px; height: 600px;
+            background: rgba(0,0,0,0.9); display: none;
+            flex-direction: column; justify-content: center; align-items: center;
+            z-index: 100; border-radius: 12px;
+        }
+
+        .up-btn {
+            background: none; border: 2px solid var(--magenta); color: var(--magenta);
+            padding: 15px; margin: 10px; width: 220px; cursor: pointer;
+            border-radius: 8px; font-weight: bold; transition: 0.3s;
+        }
+        .up-btn:hover { background: var(--magenta); color: white; box-shadow: 0 0 20px var(--magenta); }
+
+        #score-tag {
+            position: absolute; top: 40px; left: 420px; transform: translateX(-50%);
+            font-size: 32px; font-weight: 900; color: white; text-shadow: 0 0 15px var(--neon);
+            z-index: 50; pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+<div id="master-container">
+    <div id="score-tag">SCORE: 0</div>
+    
+    <div id="game-container"></div>
+
+    <div id="side-panel">
+        <div class="card">
+            <h2>SHIP STATS</h2>
+            <div class="stat-item">Level: <span class="val" id="ui-lvl">1</span></div>
+            <div class="stat-item">Speed: <span class="val" id="ui-spd">350</span></div>
+            <div class="stat-item">Damage: <span class="val" id="ui-dmg">1</span></div>
+        </div>
+
+        <div class="card">
+            <h2>CONTROLS</h2>
+            <p style="font-size: 0.8em; opacity: 0.7;">• WASD to Move<br>• SPACE or Click to Fire</p>
+        </div>
+
+        <div class="card" style="margin-top: auto;">
+            <h2>ENEMIES</h2>
+            <div class="enemy-box"><div class="dot" style="background:#00f2ff"></div> Bug (2HP)</div>
+            <div class="enemy-box"><div class="dot" style="background:#ffcc00"></div> Scout (3HP)</div>
+            <div class="enemy-box"><div class="dot" style="background:#ff0055"></div> Tank (10HP)</div>
+        </div>
+    </div>
+
+    <div id="upgrade-overlay">
+        <h1 style="color: var(--magenta);">LEVEL UP!</h1>
+        <button class="up-btn" onclick="applyMod('speed')">⚡ INCREASE SPEED</button>
+        <button class="up-btn" onclick="applyMod('fire')">🔥 FIRE RATE UP</button>
+        <button class="up-btn" onclick="applyMod('dmg')">💎 DAMAGE UP</button>
+    </div>
+</div>
+
+<script>
+    const config = {
+        type: Phaser.AUTO, width: 800, height: 600, parent: 'game-container',
+        physics: { default: 'arcade', arcade: { gravity: { y: 0 } } },
+        scene: { preload: preload, create: create, update: update }
+    };
+
+    const game = new Phaser.Game(config);
+    let player, bullets, enemies, wasd;
+    let score = 0, level = 1, nextGoal = 100;
+    let isPaused = false;
+    let stats = { speed: 350, fireRate: 400, dmg: 1, lastFired: 0 };
+
+    function preload() {
+        this.load.image('ship', 'https://labs.phaser.io/assets/sprites/fmship.png');
+        this.load.image('laser', 'https://labs.phaser.io/assets/sprites/bullets/bullet11.png');
+        this.load.image('bug', 'https://labs.phaser.io/assets/sprites/phaser-dude.png');
+    }
+
+    function create() {
+        player = this.physics.add.sprite(400, 500, 'ship').setScale(0.8).setTint(0x00f2ff);
+        player.setCollideWorldBounds(true);
+
+        bullets = this.physics.add.group();
+        enemies = this.physics.add.group();
+        
+        // تم إضافة SPACE هنا للتحكم
+        wasd = this.input.keyboard.addKeys('W,A,S,D,SPACE');
+
+        this.time.addEvent({ delay: 900, callback: spawnEnemy, callbackScope: this, loop: true });
+        this.physics.add.overlap(bullets, enemies, hit, null, this);
+        this.physics.add.overlap(player, enemies, () => location.reload(), null, this);
+    }
+
+    function update(time) {
+        if (isPaused) return;
+
+        let vx = 0, vy = 0;
+        if (wasd.A.isDown) vx = -stats.speed; else if (wasd.D.isDown) vx = stats.speed;
+        if (wasd.W.isDown) vy = -stats.speed; else if (wasd.S.isDown) vy = stats.speed;
+        player.setVelocity(vx, vy);
+
+        // تم تعديل الشرط ليدعم المسافة (SPACE)
+        if ((this.input.activePointer.isDown || wasd.SPACE.isDown) && time > stats.lastFired) {
+            let b = bullets.create(player.x, player.y - 30, 'laser');
+            b.setVelocityY(-650).setTint(0x00f2ff);
+            stats.lastFired = time + stats.fireRate;
+        }
+    }
+
+    function spawnEnemy() {
+        if (isPaused) return;
+        const x = Phaser.Math.Between(50, 750);
+        const r = Math.random();
+        let e;
+
+        if (r > 0.9) { // Tank
+            e = enemies.create(x, -50, 'bug').setTint(0xff0055).setScale(1.6).setVelocityY(80);
+            e.hp = 6; e.pts = 100;
+        } else if (r > 0.7) { // Scout
+            e = enemies.create(x, -50, 'bug').setTint(0xffcc00).setScale(0.8).setVelocityY(350);
+            e.hp = 1; e.pts = 30;
+        } else { // Normal
+            e = enemies.create(x, -50, 'bug').setTint(0x00f2ff).setVelocityY(180);
+            e.hp = 2; e.pts = 10;
+        }
+    }
+
+    function hit(bullet, enemy) {
+        bullet.destroy();
+        enemy.hp -= stats.dmg;
+        if (enemy.hp <= 0) {
+            score += enemy.pts;
+            enemy.destroy();
+            document.getElementById('score-tag').innerText = `SCORE: ${score}`;
+            if (score >= nextGoal) {
+                isPaused = true;
+                this.physics.pause();
+                document.getElementById('upgrade-overlay').style.display = 'flex';
+            }
+        }
+    }
+
+    window.applyMod = function(type) {
+        if (type === 'speed') stats.speed += 80;
+        if (type === 'fire') stats.fireRate = Math.max(100, stats.fireRate - 80);
+        if (type === 'dmg') stats.dmg += 1;
+
+        level++; nextGoal += 250;
+        isPaused = false;
+        document.getElementById('upgrade-overlay').style.display = 'none';
+        game.scene.scenes[0].physics.resume();
+        
+        document.getElementById('ui-lvl').innerText = level;
+        document.getElementById('ui-spd').innerText = stats.speed;
+        document.getElementById('ui-dmg').innerText = stats.dmg;
+    };
+</script>
+
+</body>
+</html>
